@@ -134,4 +134,4 @@ jobs:
         # Restart the deployment to recreate pods
         oc rollout restart deployment/${{ env.SPRING_BOOT_IMAGE_NAME }}
         # Get status, returns 0 if rollout is successful
-        oc rollout status dc/${{ env.SPRING_BOOT_IMAGE_NAME }}
+        oc rollout status deployments/${{ env.SPRING_BOOT_IMAGE_NAME }}
