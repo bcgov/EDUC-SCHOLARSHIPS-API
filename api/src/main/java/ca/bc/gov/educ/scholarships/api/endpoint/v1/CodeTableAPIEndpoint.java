@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping(URL.BASE_URL)
 public interface CodeTableAPIEndpoint {
 
-    @PreAuthorize("hasAuthority('SCOPE_READ_SCHOLARSHIP_CODES')")
+    @PreAuthorize("hasAuthority('SCOPE_READ_SCHOLARSHIPS_CODES')")
     @GetMapping(URL.CITIZENSHIP_CODES)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
     @Transactional(readOnly = true)

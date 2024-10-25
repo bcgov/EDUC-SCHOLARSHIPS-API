@@ -85,18 +85,11 @@ SCHOLARSHIPS_APIServiceClientSecret=$(curl -sX GET "https://$SOAM_KC/auth/admin/
   jq -r '.value')
 
 echo
-echo Writing scope READ_SCHOLARSHIPS_SESSIONS
+echo Writing scope READ_SCHOLARSHIPS_CODES
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Read Assessment Sessions Data\",\"id\": \"READ_SCHOLARSHIPS_SESSIONS\",\"name\": \"READ_SCHOLARSHIPS_SESSIONS\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
-
-echo
-echo Writing scope WRITE_SCHOLARSHIPS_SESSIONS
-curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Write Assessment Sessions Data\",\"id\": \"WRITE_SCHOLARSHIPS_SESSIONS\",\"name\": \"WRITE_SCHOLARSHIPS_SESSIONS\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+  -d "{\"description\": \"Read Scholarships Codes\",\"id\": \"READ_SCHOLARSHIPS_CODES\",\"name\": \"READ_SCHOLARSHIPS_CODES\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 
 ###########################################################
@@ -142,24 +135,12 @@ PARSER_CONFIG="
 THREADS_MIN_SUBSCRIBER=8
 THREADS_MAX_SUBSCRIBER=12
 
-
-SCHOLARSHIPS_NOTIFICATION_EMAIL_FROM="educationdataexchange@gov.bc.ca"
-
-MAXIMUM_DB_POOL_SIZE=25
-MINIMUM_IDLE_DB_POOL_SIZE=15
-
-
-if [ "$envValue" = "dev" ]
-then
-  SCHOLARSHIPS_NOTIFICATION_EMAIL_FROM="dev.educationdataexchange@gov.bc.ca"
-elif [ "$envValue" = "test" ]
-then
-  SCHOLARSHIPS_NOTIFICATION_EMAIL_FROM="test.educationdataexchange@gov.bc.ca"
-fi
+MAXIMUM_DB_POOL_SIZE=15
+MINIMUM_IDLE_DB_POOL_SIZE=10
 
 echo
 echo Creating config map "$APP_NAME"-config-map
-oc create -n "$OPENSHIFT_NAMESPACE"-"$envValue" configmap "$APP_NAME"-config-map --from-literal=TZ=$TZVALUE --from-literal=STUDENT_API_URL="http://student-api-master.$COMMON_NAMESPACE-$envValue.svc.cluster.local:8080/api/v1/student" --from-literal=SCHOLARSHIPS_NOTIFICATION_EMAIL_FROM=$SCHOLARSHIPS_NOTIFICATION_EMAIL_FROM --from-literal=JDBC_URL="$DB_JDBC_CONNECT_STRING" --from-literal=PURGE_RECORDS_SAGA_AFTER_DAYS=400 --from-literal=SCHEDULED_JOBS_PURGE_OLD_SAGA_RECORDS_CRON="@midnight" --from-literal=DB_USERNAME="$DB_USER" --from-literal=DB_PASSWORD="$DB_PWD" --from-literal=SPRING_SECURITY_LOG_LEVEL=INFO --from-literal=SPRING_WEB_LOG_LEVEL=INFO --from-literal=APP_LOG_LEVEL=INFO --from-literal=SPRING_BOOT_AUTOCONFIG_LOG_LEVEL=INFO --from-literal=SPRING_SHOW_REQUEST_DETAILS=false --from-literal=SPRING_JPA_SHOW_SQL="false" --from-literal=TOKEN_ISSUER_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID" --from-literal=TOKEN_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID/protocol/openid-connect/token" --from-literal=NATS_MAX_RECONNECT=60 --from-literal=NATS_URL=$NATS_URL --from-literal=CLIENT_ID="scholarships-api-service" --from-literal=CLIENT_SECRET="$SCHOLARSHIPS_APIServiceClientSecret" --from-literal=THREADS_MIN_SUBSCRIBER="$THREADS_MIN_SUBSCRIBER" --from-literal=THREADS_MAX_SUBSCRIBER="$THREADS_MAX_SUBSCRIBER" --from-literal=INSTITUTE_API_URL="http://institute-api-master.$COMMON_NAMESPACE-$envValue.svc.cluster.local:8080/api/v1/institute" --from-literal=MAXIMUM_DB_POOL_SIZE="$MAXIMUM_DB_POOL_SIZE" --from-literal=MINIMUM_IDLE_DB_POOL_SIZE="$MINIMUM_IDLE_DB_POOL_SIZE" --dry-run -o yaml | oc apply -f -
+oc create -n "$OPENSHIFT_NAMESPACE"-"$envValue" configmap "$APP_NAME"-config-map --from-literal=TZ=$TZVALUE --from-literal=JDBC_URL="$DB_JDBC_CONNECT_STRING" --from-literal=DB_USERNAME="$DB_USER" --from-literal=DB_PASSWORD="$DB_PWD" --from-literal=SPRING_SECURITY_LOG_LEVEL=INFO --from-literal=SPRING_WEB_LOG_LEVEL=INFO --from-literal=APP_LOG_LEVEL=INFO --from-literal=SPRING_BOOT_AUTOCONFIG_LOG_LEVEL=INFO --from-literal=SPRING_SHOW_REQUEST_DETAILS=false --from-literal=SPRING_JPA_SHOW_SQL="false" --from-literal=TOKEN_ISSUER_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID" --from-literal=TOKEN_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID/protocol/openid-connect/token" --from-literal=NATS_MAX_RECONNECT=60 --from-literal=NATS_URL=$NATS_URL --from-literal=CLIENT_ID="scholarships-api-service" --from-literal=CLIENT_SECRET="$SCHOLARSHIPS_APIServiceClientSecret" --from-literal=THREADS_MIN_SUBSCRIBER="$THREADS_MIN_SUBSCRIBER" --from-literal=THREADS_MAX_SUBSCRIBER="$THREADS_MAX_SUBSCRIBER" --from-literal=MAXIMUM_DB_POOL_SIZE="$MAXIMUM_DB_POOL_SIZE" --from-literal=MINIMUM_IDLE_DB_POOL_SIZE="$MINIMUM_IDLE_DB_POOL_SIZE" --dry-run -o yaml | oc apply -f -
 
 echo
 echo Setting environment variables for $APP_NAME-$SOAM_KC_REALM_ID application

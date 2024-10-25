@@ -45,7 +45,7 @@ class CodeTableControllerTest extends BaseScholarshipsAPITest {
 
   @Test
   void testGetAllCitizenshipCodes_ShouldReturnCodes() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOLARSHIP_CODES";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOLARSHIPS_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     this.mockMvc.perform(get(URL.BASE_URL + URL.CITIZENSHIP_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
