@@ -16,7 +16,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
 @SuppressWarnings("squid:S1700")
-public class CitizenshipCode extends ca.bc.gov.educ.scholarships.api.struct.v1.BaseRequest implements Serializable {
+public class CitizenshipCode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
   @Size(max = 10)
