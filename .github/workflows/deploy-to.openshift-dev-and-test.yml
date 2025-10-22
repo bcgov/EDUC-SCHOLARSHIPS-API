@@ -176,7 +176,7 @@ jobs:
     - name: ZAP Scan
       uses: zaproxy/action-api-scan@v0.7.0
       with:
-        target: 'https://${{ env.APP_NAME }}-${{ env.OPENSHIFT_NAMESPACE_DEV }}-dev.apps.silver.devops.gov.bc.ca/v3/api-docs'
+        target: 'https://${{ env.APP_NAME }}-${{ env.OPENSHIFT_NAMESPACE_DEV }}.apps.silver.devops.gov.bc.ca/v3/api-docs'
 
   deploy-test:
     name: Deploy to OpenShift TEST
@@ -261,4 +261,4 @@ jobs:
       - name: ZAP Scan
         uses: zaproxy/action-api-scan@v0.7.0
         with:
-          target: 'https://${{ env.APP_NAME }}-${{ env.OPENSHIFT_NAMESPACE_TEST }}-dev.apps.silver.devops.gov.bc.ca/v3/api-docs'
+          target: 'https://${{ env.APP_NAME }}-${{ env.OPENSHIFT_NAMESPACE_TEST }}.apps.silver.devops.gov.bc.ca/v3/api-docs'
