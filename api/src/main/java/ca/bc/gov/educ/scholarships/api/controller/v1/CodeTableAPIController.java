@@ -4,6 +4,8 @@ import ca.bc.gov.educ.scholarships.api.endpoint.v1.CodeTableAPIEndpoint;
 import ca.bc.gov.educ.scholarships.api.mappers.v1.CodeTableMapper;
 import ca.bc.gov.educ.scholarships.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.scholarships.api.struct.v1.CitizenshipCode;
+import ca.bc.gov.educ.scholarships.api.struct.v1.CountryCode;
+import ca.bc.gov.educ.scholarships.api.struct.v1.ProvinceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +24,15 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     @Override
     public List<CitizenshipCode> getCitizenshipCodes() {
         return codeTableService.getAllCitizenshipCodes().stream().map(mapper::toStructure).toList();
+    }
+
+    @Override
+    public List<CountryCode> getCountryCodes() {
+        return codeTableService.getAllCountryCodes().stream().map(mapper::toStructure).toList();
+    }
+
+    @Override
+    public List<ProvinceCode> getProvinceCodes() {
+        return codeTableService.getAllCanadianProvinceCodes().stream().map(mapper::toStructure).toList();
     }
 }

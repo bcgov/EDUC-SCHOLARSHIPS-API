@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.scholarships.api.support;
 
+import ca.bc.gov.educ.scholarships.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.scholarships.api.messaging.MessageSubscriber;
 import ca.bc.gov.educ.scholarships.api.messaging.NatsConnection;
 import io.nats.client.Connection;
 import org.mockito.Mockito;
@@ -16,6 +18,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class MockConfigurationWebClient {
 
+  @Bean
+  @Primary
+  public MessagePublisher messagePublisher() {
+    return Mockito.mock(MessagePublisher.class);
+  }
+
+  @Bean
+  @Primary
+  public MessageSubscriber messageSubscriber() {
+    return Mockito.mock(MessageSubscriber.class);
+  }
+  
   @Bean
   @Primary
   public WebClient webClient() {

@@ -3,6 +3,8 @@ package ca.bc.gov.educ.scholarships.api.controller.v1;
 import ca.bc.gov.educ.scholarships.api.BaseScholarshipsAPITest;
 import ca.bc.gov.educ.scholarships.api.constants.v1.URL;
 import ca.bc.gov.educ.scholarships.api.repository.v1.CitizenshipCodeRepository;
+import ca.bc.gov.educ.scholarships.api.repository.v1.CountryCodeRepository;
+import ca.bc.gov.educ.scholarships.api.repository.v1.ProvinceCodeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -30,15 +32,25 @@ class CodeTableControllerTest extends BaseScholarshipsAPITest {
   @Autowired
   CitizenshipCodeRepository citizenshipCodeRepository;
 
+  @Autowired
+  CountryCodeRepository countryCodeRepository;
+
+  @Autowired
+  ProvinceCodeRepository provinceCodeRepository;
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     citizenshipCodeRepository.save(createCitizenshipCodeEntity());
+    countryCodeRepository.save(createCountryCodeData());
+    provinceCodeRepository.save(createProvinceCodeData());
   }
 
   @AfterEach
   public void tearDown() {
     citizenshipCodeRepository.deleteAll();
+    countryCodeRepository.deleteAll();
+    provinceCodeRepository.deleteAll();
   }
 
   protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
@@ -52,4 +64,21 @@ class CodeTableControllerTest extends BaseScholarshipsAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].citizenshipCode").value("C"));
   }
 
+  @Test
+  void testGetAllCountryCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOLARSHIPS_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.COUNTRY_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].countryCode").value("CA"));
+  }
+
+  @Test
+  void testGetAllProvinceCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOLARSHIPS_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.PROVINCE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].provinceCode").value("BC"));
+  }
 }
