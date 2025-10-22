@@ -7,5 +7,7 @@ public final class URL {
 
   public static final String BASE_URL="/api/v1/scholarships";
   public static final String CITIZENSHIP_CODES="/citizenship-codes";
+  public static final String COUNTRY_CODES="/country-codes";
+  public static final String PROVINCE_CODES="/province-codes";
 
 }
