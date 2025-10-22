@@ -2,9 +2,6 @@ package ca.bc.gov.educ.scholarships.api.controller.v1;
 
 import ca.bc.gov.educ.scholarships.api.BaseScholarshipsAPITest;
 import ca.bc.gov.educ.scholarships.api.constants.v1.URL;
-import ca.bc.gov.educ.scholarships.api.model.v1.CountryCodeEntity;
-import ca.bc.gov.educ.scholarships.api.model.v1.ProvinceCodeEntity;
-import ca.bc.gov.educ.scholarships.api.model.v1.StudentAddressEntity;
 import ca.bc.gov.educ.scholarships.api.repository.v1.CountryCodeRepository;
 import ca.bc.gov.educ.scholarships.api.repository.v1.ProvinceCodeRepository;
 import ca.bc.gov.educ.scholarships.api.repository.v1.StudentAddressRepository;
@@ -19,9 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
@@ -105,7 +99,7 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
 
   @Test
   void testUpdateStudentAddress_GivenValidID_ShouldReturnStatusOK() throws Exception {
-    final var studentAddress = this.createStudentAddressData();
+    final var studentAddress = createStudentAddressData();
     var studentAddressEntity = this.studentAddressRepository.save(studentAddress);
     studentAddressEntity.setAddressLine1("ABCD");
 
@@ -117,23 +111,6 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.addressLine1").value(studentAddressEntity.getAddressLine1()));
-  }
-
-  private StudentAddressEntity createStudentAddressData() {
-    return StudentAddressEntity.builder().addressLine1("Line 1").city("City").provinceStateCode("BC").countryCode("CA").postalZip("V1V1V2").studentID(UUID.randomUUID())
-            .createUser("ABC").updateUser("ABC").build();
-  }
-
-  private ProvinceCodeEntity createProvinceCodeData() {
-    return ProvinceCodeEntity.builder().provinceCode("BC").description("British Columbia")
-      .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("British Columbia").createDate(LocalDateTime.now())
-      .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-
-  private CountryCodeEntity createCountryCodeData() {
-    return CountryCodeEntity.builder().countryCode("CA").description("Canada")
-      .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Canada").createDate(LocalDateTime.now())
-      .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
 }
