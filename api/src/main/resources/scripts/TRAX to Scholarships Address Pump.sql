@@ -1,4 +1,4 @@
---Create the structure named TRAX_STUDENT_ADDRESS large enough in the EDX migration schema, and then copy in the following:
+--Create the structure named TRAX_STUDENT_ADDRESS large enough in column size in the EDX migration schema, and then copy in the following:
 SELECT
     STUD_NO,
     ADDRESS1,
@@ -10,21 +10,29 @@ SELECT
 FROM
     STUDENT_MASTER@traxlink.world;
 
+--Create STUDENT_LINK table from required environment (Student API)
+--SELECT STUDENT_ID,PEN FROM STUDENT;
+
 --Run the following in the migration schema
+CREATE TABLE STUDENT_ADDRESS
+AS
 SELECT
     LOWER(REGEXP_REPLACE(dbms_crypto.randombytes(16), '(.{8})(.{4})(.{4})(.{4})(.{12})', '\1-\2-\3-\4-\5')) as STUDENT_ADDRESS_ID,
     (SELECT LOWER(REGEXP_REPLACE(STUDENT_ID, '(.{8})(.{4})(.{4})(.{4})(.*)', '\1-\2-\3-\4-\5'))
      FROM STUDENT_LINK stud_link
      WHERE stud_link.PEN = TRIM(STUD_NO)) AS STUDENT_ID,
-    TRIM(ADDRESS1) AS ADDRESS_LINE_1,
-    TRIM(ADDRESS2) AS ADDRESS_LINE_2,
+    CASE
+        WHEN TRIM(ADDRESS1) IS NULL THEN TRIM(ADDRESS2)
+        ELSE TRIM(ADDRESS1)
+        END as ADDRESS_LINE_1,
+    CASE
+        WHEN TRIM(ADDRESS1) IS NULL AND TRIM(ADDRESS2) IS NOT NULL THEN NULL
+        ELSE TRIM(ADDRESS2)
+        END as ADDRESS_LINE_2,
     TRIM(CITY) AS CITY,
     TRIM(POSTAL) AS POSTAL_ZIP,
     TRIM(PROV_CODE) AS PROVINCE_STATE_CODE,
-    CASE
-        WHEN TRIM(CNTRY_CODE) = 'CN' THEN 'CA'
-        ELSE TRIM(CNTRY_CODE)
-        END as COUNTRY_CODE,
+    TRIM(CNTRY_CODE) as COUNTRY_CODE,
     'SCHOLARSHIPS' as CREATE_USER,
     sysdate as CREATE_DATE,
     'SCHOLARSHIPS' as UPDATE_USER,
