@@ -1,7 +1,7 @@
 TRUNCATE TABLE STUDENT@sldlink.world;
 
 --Copy tables into the migration schema with the following fields
-SELECT * FROM SDC_SCHOOL_COLLECTION_STUDENT sdc_student, SDC_SCHOOL_COLLECTION school
+SELECT sdc_student.* FROM SDC_SCHOOL_COLLECTION_STUDENT sdc_student, SDC_SCHOOL_COLLECTION school
 WHERE sdc_student.SDC_SCHOOL_COLLECTION_ID = school.SDC_SCHOOL_COLLECTION_ID
 AND school.COLLECTION_ID = :collectionID;
 
@@ -15,7 +15,7 @@ WHERE funding.COLLECTION_ID = :collectionID;
 --Copy both SCHOOL_FUNDING_GROUP_CODE table from SDC API into the migration schema
 
 --Run in migration schema
-CREATE TABLE STUDENT_SCHOLARSHIPS_PUMP
+CREATE TABLE SLD_STUDENT_SCHOLARSHIPS_PUMP
 AS
 SELECT
     sdc_student.ASSIGNED_PEN as STUDENT_ID,
