@@ -20,14 +20,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 public interface StudentAddressAPIEndpoint {
 
   @GetMapping("/{studentID}/address")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SCHOLARSHIPS')")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SCHOLARSHIPS_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Student Address Entity", description = "Endpoints for student address entity.")
   @Schema(name = "StudentAddress", implementation = StudentAddress.class)
   StudentAddress getStudentAddress(@PathVariable UUID studentID);
   
   @PostMapping("/{studentID}/address")
-  @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOLARSHIPS')")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOLARSHIPS_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Student Address Entity", description = "Endpoints for student address entity.")
   @Schema(name = "StudentAddress", implementation = StudentAddress.class)
@@ -35,14 +35,14 @@ public interface StudentAddressAPIEndpoint {
   StudentAddress createStudentAddress(@PathVariable UUID studentID, @Validated @RequestBody StudentAddress studentAddress);
 
   @PutMapping("/{studentID}/address/{studentAddressID}")
-  @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOLARSHIPS')")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOLARSHIPS_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Student Address Entity", description = "Endpoints for student address entity.")
   @Schema(name = "StudentAddress", implementation = StudentAddress.class)
   StudentAddress updateStudentAddress(@PathVariable UUID studentID, @PathVariable UUID studentAddressID, @Validated @RequestBody StudentAddress studentAddress);
 
   @DeleteMapping("/{studentID}/address/{studentAddressID}")
-  @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOLARSHIPS')")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOLARSHIPS_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Student Address Entity", description = "Endpoints for student address entity.")
   ResponseEntity<Void> deleteStudentAddress(@PathVariable UUID studentID, @PathVariable UUID studentAddressID);
