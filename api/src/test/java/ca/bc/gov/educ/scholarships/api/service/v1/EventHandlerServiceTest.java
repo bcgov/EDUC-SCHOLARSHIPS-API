@@ -69,7 +69,7 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
 
     var sagaId = UUID.randomUUID();
     final Event event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(JsonUtil.getJsonStringFromObject(savedAddress)).build();
-    var response = eventHandlerServiceUnderTest.handleUpdateSchoolEvent(event);
+    var response = eventHandlerServiceUnderTest.handleUpdateStudentAddressEvent(event);
     assertThat(response).isNotNull();
     Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response);
     assertThat(responseEvent).isNotNull();
@@ -87,7 +87,7 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
 
     var sagaId = UUID.randomUUID();
     final Event event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(JsonUtil.getJsonStringFromObject(savedAddress)).build();
-    var response = eventHandlerServiceUnderTest.handleUpdateSchoolEvent(event);
+    var response = eventHandlerServiceUnderTest.handleUpdateStudentAddressEvent(event);
     assertThat(response).isNotNull();
     Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response);
     assertThat(responseEvent).isNotNull();

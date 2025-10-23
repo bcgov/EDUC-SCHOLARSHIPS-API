@@ -51,7 +51,7 @@ public class EventHandlerDelegatorService {
         case UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS:
           log.info("Received UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS event :: {}", event);
           log.trace(PAYLOAD_LOG, event.getEventPayload());
-          var eventResponse = eventHandlerService.handleUpdateSchoolEvent(event);
+          var eventResponse = eventHandlerService.handleUpdateStudentAddressEvent(event);
           log.info(RESPONDING_BACK_TO_NATS_ON_CHANNEL, message.getReplyTo() != null ? message.getReplyTo() : event.getReplyTo());
           publishToNATS(event, message, isSynchronous, eventResponse);
           break;

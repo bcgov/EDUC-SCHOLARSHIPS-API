@@ -39,7 +39,7 @@ public class EventHandlerService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public byte[] handleUpdateSchoolEvent(Event event) throws JsonProcessingException {
+  public byte[] handleUpdateStudentAddressEvent(Event event) throws JsonProcessingException {
     log.trace(EVENT_PAYLOAD, event);
     StudentAddress studentAddress = JsonUtil.getJsonObjectFromString(StudentAddress.class, event.getEventPayload());
 
@@ -50,7 +50,7 @@ public class EventHandlerService {
       event.setEventPayload(JsonUtil.getJsonStringFromObject(validationErrors));
     }else {
       RequestUtil.setAuditColumnsForCreate(studentAddress);
-      var studentAddressUpdated = studentAddressService.updateStudentAddress(studentAddress, UUID.fromString(studentAddress.getStudentID()), UUID.fromString(studentAddress.getStudentAddressId()));
+      var studentAddressUpdated = studentAddressService.createOrUpdateStudentAddress(studentAddress, UUID.fromString(studentAddress.getStudentID()), UUID.fromString(studentAddress.getStudentAddressId()));
       event.setEventOutcome(EventOutcome.STUDENT_ADDRESS_UPDATED);
       event.setEventPayload(JsonUtil.getJsonStringFromObject(studentAddressMapper.toStructure(studentAddressUpdated)));
     }
