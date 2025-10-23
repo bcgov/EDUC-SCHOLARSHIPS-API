@@ -62,7 +62,7 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
 
   @Test
   void testRetrieveStudentAddress_GivenValidID_ShouldReturnStatusOK() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOLARSHIPS";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOLARSHIPS_STUDENT";
     final var mockAuthority = oidcLogin().authorities(grantedAuthority);
     final var studentAddress = this.createStudentAddressData();
     var studentAddressEntity = this.studentAddressRepository.save(studentAddress);
@@ -73,7 +73,7 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
 
   @Test
   void testCreateStudentAddress_GivenValidID_ShouldReturnStatusOK() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOLARSHIPS";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOLARSHIPS_STUDENT";
     final var mockAuthority = oidcLogin().authorities(grantedAuthority);
     final var studentAddress = this.createStudentAddressData();
     this.mockMvc.perform(post(URL.BASE_URL + "/" + studentAddress.getStudentID() + "/address").with(mockAuthority)
@@ -86,7 +86,7 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
 
   @Test
   void testDeleteStudentAddress_GivenValidID_ShouldReturnStatusOK() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOLARSHIPS";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOLARSHIPS_STUDENT";
     final var mockAuthority = oidcLogin().authorities(grantedAuthority);
     final var studentAddress = this.createStudentAddressData();
     var studentAddressEntity = this.studentAddressRepository.save(studentAddress);
@@ -107,7 +107,7 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .content(asJsonString(studentAddressEntity))
-                    .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SCHOLARSHIPS"))))
+                    .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SCHOLARSHIPS_STUDENT"))))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.addressLine1").value(studentAddressEntity.getAddressLine1()));
