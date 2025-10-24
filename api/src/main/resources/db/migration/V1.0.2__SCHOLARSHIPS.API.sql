@@ -4,7 +4,7 @@ CREATE TABLE COUNTRY_CODE
     COUNTRY_CODE   VARCHAR(2)                         NOT NULL,
     LABEL          VARCHAR(100)                         NOT NULL,
     DESCRIPTION    VARCHAR(255)                        NOT NULL,
-    ALTERNATIVE_CODE    VARCHAR(255)                        NOT NULL,
+    ALTERNATIVE_CODE    VARCHAR(255)                        ,
     DISPLAY_ORDER  NUMERIC   DEFAULT 1                 NOT NULL,
     EFFECTIVE_DATE TIMESTAMP                           NOT NULL,
     EXPIRY_DATE    TIMESTAMP                           NOT NULL,
