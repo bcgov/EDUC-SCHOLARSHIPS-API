@@ -23,6 +23,7 @@ public class ApplicationProperties {
     .setCorePoolSize(1).setMaximumPoolSize(1).setKeepAliveTime(Duration.ofSeconds(60)).build();
   public static final String SCHOLARSHIPS_API = "SCHOLARSHIPS_API";
   public static final String CORRELATION_ID = "correlationID";
+  public static final String STREAM_NAME= "SCHOLARSHIPS_EVENTS";
   /**
    * The Client id.
    */

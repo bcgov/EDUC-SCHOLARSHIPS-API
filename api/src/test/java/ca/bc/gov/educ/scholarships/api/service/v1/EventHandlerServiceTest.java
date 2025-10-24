@@ -7,11 +7,13 @@ import ca.bc.gov.educ.scholarships.api.constants.v1.EventType;
 import ca.bc.gov.educ.scholarships.api.constants.v1.TopicsEnum;
 import ca.bc.gov.educ.scholarships.api.repository.v1.CountryCodeRepository;
 import ca.bc.gov.educ.scholarships.api.repository.v1.ProvinceCodeRepository;
+import ca.bc.gov.educ.scholarships.api.repository.v1.ScholarshipsEventRepository;
 import ca.bc.gov.educ.scholarships.api.repository.v1.StudentAddressRepository;
 import ca.bc.gov.educ.scholarships.api.service.v1.events.EventHandlerService;
 import ca.bc.gov.educ.scholarships.api.struct.v1.Event;
 import ca.bc.gov.educ.scholarships.api.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.scholarships.api.constants.v1.EventOutcome.STUDENT_ADDRESS_UPDATED;
+import static ca.bc.gov.educ.scholarships.api.constants.v1.EventStatus.DB_COMMITTED;
+import static ca.bc.gov.educ.scholarships.api.constants.v1.EventType.UPDATE_STUDENT_ADDRESS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -34,6 +39,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class EventHandlerServiceTest extends BaseScholarshipsAPITest {
 
   public static final String SCHOLARSHIPS_API_TOPIC = TopicsEnum.SCHOLARSHIPS_API_TOPIC.toString();
+
+  @Autowired
+  ScholarshipsEventRepository scholarshipsEventRepository;
   
   @Autowired
   StudentAddressRepository studentAddressRepository;
@@ -59,6 +67,7 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
     studentAddressRepository.deleteAll();
     countryCodeRepository.deleteAll();
     provinceCodeRepository.deleteAll();
+    scholarshipsEventRepository.deleteAll();
   }
 
   @Test
@@ -71,7 +80,7 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
     final Event event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(JsonUtil.getJsonStringFromObject(savedAddress)).build();
     var response = eventHandlerServiceUnderTest.handleUpdateStudentAddressEvent(event);
     assertThat(response).isNotNull();
-    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response);
+    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response.getLeft());
     assertThat(responseEvent).isNotNull();
     assertThat(responseEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_ADDRESS_VALIDATION_ERRORS);
   }
@@ -89,8 +98,13 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
     final Event event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(JsonUtil.getJsonStringFromObject(savedAddress)).build();
     var response = eventHandlerServiceUnderTest.handleUpdateStudentAddressEvent(event);
     assertThat(response).isNotNull();
-    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response);
+    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response.getLeft());
     assertThat(responseEvent).isNotNull();
-    assertThat(responseEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_ADDRESS_UPDATED);
+    assertThat(responseEvent.getEventOutcome()).isEqualTo(STUDENT_ADDRESS_UPDATED);
+
+    var studentEventUpdated = scholarshipsEventRepository.findBySagaIdAndEventType(sagaId, UPDATE_STUDENT_ADDRESS.toString());
+    Assertions.assertThat(studentEventUpdated).isPresent();
+    Assertions.assertThat(studentEventUpdated.get().getEventStatus()).isEqualTo(DB_COMMITTED.toString());
+    Assertions.assertThat(studentEventUpdated.get().getEventOutcome()).isEqualTo(STUDENT_ADDRESS_UPDATED.toString());
   }
 }

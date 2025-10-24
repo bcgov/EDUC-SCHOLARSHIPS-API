@@ -4,13 +4,14 @@ package ca.bc.gov.educ.scholarships.api.support;
 import ca.bc.gov.educ.scholarships.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.scholarships.api.messaging.MessageSubscriber;
 import ca.bc.gov.educ.scholarships.api.messaging.NatsConnection;
+import ca.bc.gov.educ.scholarships.api.messaging.jetstream.Publisher;
+import ca.bc.gov.educ.scholarships.api.messaging.jetstream.Subscriber;
 import io.nats.client.Connection;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * The type Mock configuration.
@@ -33,12 +34,6 @@ public class MockConfiguration {
 
   @Bean
   @Primary
-  public RestTemplate restTemplate() {
-    return Mockito.mock(RestTemplate.class);
-  }
-
-  @Bean
-  @Primary
   public Connection connection() {
     return Mockito.mock(Connection.class);
   }
@@ -48,6 +43,17 @@ public class MockConfiguration {
   public NatsConnection natsConnection() {
     return Mockito.mock(NatsConnection.class);
   }
-  
+
+  @Bean
+  @Primary
+  public Publisher publisher() {
+    return Mockito.mock(Publisher.class);
+  }
+
+  @Bean
+  @Primary
+  public Subscriber subscriber() {
+    return Mockito.mock(Subscriber.class);
+  }
 
 }

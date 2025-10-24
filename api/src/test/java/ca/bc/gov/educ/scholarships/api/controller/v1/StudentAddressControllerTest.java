@@ -7,7 +7,6 @@ import ca.bc.gov.educ.scholarships.api.repository.v1.ProvinceCodeRepository;
 import ca.bc.gov.educ.scholarships.api.repository.v1.StudentAddressRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -82,19 +81,6 @@ public class StudentAddressControllerTest extends BaseScholarshipsAPITest {
             .content(asJsonString(studentAddress)))
             .andDo(print()).andExpect(status().isCreated()).andExpect(MockMvcResultMatchers.jsonPath("$.studentID")
                     .value(studentAddress.getStudentID().toString()));
-  }
-
-  @Test
-  void testDeleteStudentAddress_GivenValidID_ShouldReturnStatusOK() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOLARSHIPS_STUDENT";
-    final var mockAuthority = oidcLogin().authorities(grantedAuthority);
-    final var studentAddress = this.createStudentAddressData();
-    var studentAddressEntity = this.studentAddressRepository.save(studentAddress);
-    this.mockMvc.perform(delete(URL.BASE_URL + "/" + studentAddressEntity.getStudentID() + "/address/" + studentAddressEntity.getStudentAddressId()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isNoContent());
-
-    var deletedAddress = this.studentAddressRepository.findById(studentAddressEntity.getStudentAddressId());
-    Assertions.assertTrue(deletedAddress.isEmpty());
   }
 
   @Test

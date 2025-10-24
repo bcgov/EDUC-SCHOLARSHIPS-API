@@ -3,13 +3,14 @@ package ca.bc.gov.educ.scholarships.api.controller.v1;
 
 import ca.bc.gov.educ.scholarships.api.endpoint.v1.StudentAddressAPIEndpoint;
 import ca.bc.gov.educ.scholarships.api.mappers.v1.StudentAddressMapper;
+import ca.bc.gov.educ.scholarships.api.messaging.jetstream.Publisher;
 import ca.bc.gov.educ.scholarships.api.service.v1.StudentAddressService;
 import ca.bc.gov.educ.scholarships.api.struct.v1.StudentAddress;
 import ca.bc.gov.educ.scholarships.api.util.RequestUtil;
 import ca.bc.gov.educ.scholarships.api.validator.StudentAddressPayloadValidator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -21,12 +22,14 @@ import static ca.bc.gov.educ.scholarships.api.util.ValidationUtil.validatePayloa
 public class StudentAddressAPIController implements StudentAddressAPIEndpoint {
 
   private final StudentAddressService studentAddressService;
+  private final Publisher publisher;
   private final StudentAddressPayloadValidator studentAddressPayloadValidator;
   private static final StudentAddressMapper mapper = StudentAddressMapper.mapper;
 
   @Autowired
-  public StudentAddressAPIController(StudentAddressService studentAddressService, StudentAddressPayloadValidator studentAddressPayloadValidator) {
+  public StudentAddressAPIController(StudentAddressService studentAddressService, Publisher publisher, StudentAddressPayloadValidator studentAddressPayloadValidator) {
       this.studentAddressService = studentAddressService;
+      this.publisher = publisher;
       this.studentAddressPayloadValidator = studentAddressPayloadValidator;
   }
 
@@ -36,23 +39,21 @@ public class StudentAddressAPIController implements StudentAddressAPIEndpoint {
   }
 
   @Override
-  public StudentAddress createStudentAddress(UUID studentID, StudentAddress studentAddress) {
+  public StudentAddress createStudentAddress(UUID studentID, StudentAddress studentAddress) throws JsonProcessingException {
     validatePayload(() -> this.studentAddressPayloadValidator.validatePayload(studentAddress));
     RequestUtil.setAuditColumnsForCreate(studentAddress);
-    return mapper.toStructure(studentAddressService.createStudentAddress(studentAddress, studentID));
+    var response = studentAddressService.createStudentAddress(studentAddress, studentID);
+    publisher.dispatchChoreographyEvent(response.getRight());
+    return mapper.toStructure(response.getLeft());
   }
 
   @Override
-  public StudentAddress updateStudentAddress(UUID studentID, UUID studentAddressID, StudentAddress studentAddress) {
+  public StudentAddress updateStudentAddress(UUID studentID, UUID studentAddressID, StudentAddress studentAddress) throws JsonProcessingException {
     validatePayload(() -> this.studentAddressPayloadValidator.validatePayload(studentAddress));
     RequestUtil.setAuditColumnsForUpdate(studentAddress);
-    return mapper.toStructure(studentAddressService.updateStudentAddress(studentAddress, studentID, studentAddressID));
-  }
-
-  @Override
-  public ResponseEntity<Void> deleteStudentAddress(UUID studentID, UUID studentAddressID) {
-    this.studentAddressService.deleteStudentAddress(studentAddressID);
-    return ResponseEntity.noContent().build();
+    var response = studentAddressService.updateStudentAddress(studentAddress, studentID, studentAddressID);
+    publisher.dispatchChoreographyEvent(response.getRight());
+    return mapper.toStructure(response.getLeft());
   }
 
 }

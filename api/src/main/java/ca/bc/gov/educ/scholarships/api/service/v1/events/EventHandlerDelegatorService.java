@@ -2,6 +2,8 @@ package ca.bc.gov.educ.scholarships.api.service.v1.events;
 
 
 import ca.bc.gov.educ.scholarships.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.scholarships.api.messaging.jetstream.Publisher;
+import ca.bc.gov.educ.scholarships.api.model.v1.ScholarshipsEvent;
 import ca.bc.gov.educ.scholarships.api.struct.v1.Event;
 import io.nats.client.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ public class EventHandlerDelegatorService {
   public static final String PAYLOAD_LOG = "payload is :: {}";
   private final MessagePublisher messagePublisher;
   private final EventHandlerService eventHandlerService;
+  private final Publisher publisher;
 
   /**
    * Instantiates a new Event handler delegator service.
@@ -32,9 +35,10 @@ public class EventHandlerDelegatorService {
    * @param eventHandlerService the event handler service
    */
   @Autowired
-  public EventHandlerDelegatorService(MessagePublisher messagePublisher, EventHandlerService eventHandlerService) {
+  public EventHandlerDelegatorService(MessagePublisher messagePublisher, EventHandlerService eventHandlerService, Publisher publisher) {
     this.messagePublisher = messagePublisher;
     this.eventHandlerService = eventHandlerService;
+    this.publisher = publisher;
   }
 
   /**
@@ -44,16 +48,18 @@ public class EventHandlerDelegatorService {
    * @param message the message
    */
   public void handleEvent(final Event event, final Message message) {
-    byte[] response;
     boolean isSynchronous = message.getReplyTo() != null;
     try {
       switch (event.getEventType()) {
         case UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS:
           log.info("Received UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS event :: {}", event);
           log.trace(PAYLOAD_LOG, event.getEventPayload());
-          var eventResponse = eventHandlerService.handleUpdateStudentAddressEvent(event);
+          var pair = eventHandlerService.handleUpdateStudentAddressEvent(event);
           log.info(RESPONDING_BACK_TO_NATS_ON_CHANNEL, message.getReplyTo() != null ? message.getReplyTo() : event.getReplyTo());
-          publishToNATS(event, message, isSynchronous, eventResponse);
+          publishToNATS(event, message, isSynchronous, pair.getLeft());
+          if(pair.getRight() != null) {
+            publishToJetStream(pair.getRight());  
+          }
           break;
         default:
           log.info("silently ignoring other events :: {}", event);
@@ -64,6 +70,10 @@ public class EventHandlerDelegatorService {
     }
   }
 
+  private void publishToJetStream(final ScholarshipsEvent event) {
+    publisher.dispatchChoreographyEvent(event);
+  }
+  
   private void publishToNATS(Event event, Message message, boolean isSynchronous, byte[] left) {
     if (isSynchronous) { // sync, req/reply pattern of nats
       messagePublisher.dispatchMessage(message.getReplyTo(), left);

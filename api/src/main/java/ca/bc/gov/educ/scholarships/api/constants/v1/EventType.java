@@ -7,4 +7,6 @@ public enum EventType {
 
   UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS,
 
+  UPDATE_STUDENT_ADDRESS,
+
 }
