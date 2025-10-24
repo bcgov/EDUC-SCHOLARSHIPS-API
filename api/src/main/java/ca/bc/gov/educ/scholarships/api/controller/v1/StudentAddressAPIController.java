@@ -7,7 +7,6 @@ import ca.bc.gov.educ.scholarships.api.messaging.jetstream.Publisher;
 import ca.bc.gov.educ.scholarships.api.service.v1.StudentAddressService;
 import ca.bc.gov.educ.scholarships.api.struct.v1.StudentAddress;
 import ca.bc.gov.educ.scholarships.api.util.RequestUtil;
-import ca.bc.gov.educ.scholarships.api.validator.StudentAddressPayloadValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,22 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-import static ca.bc.gov.educ.scholarships.api.util.ValidationUtil.validatePayload;
-
 @RestController
 @Slf4j
 public class StudentAddressAPIController implements StudentAddressAPIEndpoint {
 
   private final StudentAddressService studentAddressService;
   private final Publisher publisher;
-  private final StudentAddressPayloadValidator studentAddressPayloadValidator;
   private static final StudentAddressMapper mapper = StudentAddressMapper.mapper;
 
   @Autowired
-  public StudentAddressAPIController(StudentAddressService studentAddressService, Publisher publisher, StudentAddressPayloadValidator studentAddressPayloadValidator) {
+  public StudentAddressAPIController(StudentAddressService studentAddressService, Publisher publisher) {
       this.studentAddressService = studentAddressService;
       this.publisher = publisher;
-      this.studentAddressPayloadValidator = studentAddressPayloadValidator;
   }
 
   @Override
@@ -40,7 +35,6 @@ public class StudentAddressAPIController implements StudentAddressAPIEndpoint {
 
   @Override
   public StudentAddress createStudentAddress(UUID studentID, StudentAddress studentAddress) throws JsonProcessingException {
-    validatePayload(() -> this.studentAddressPayloadValidator.validatePayload(studentAddress));
     RequestUtil.setAuditColumnsForCreate(studentAddress);
     var response = studentAddressService.createStudentAddress(studentAddress, studentID);
     publisher.dispatchChoreographyEvent(response.getRight());
@@ -49,7 +43,6 @@ public class StudentAddressAPIController implements StudentAddressAPIEndpoint {
 
   @Override
   public StudentAddress updateStudentAddress(UUID studentID, UUID studentAddressID, StudentAddress studentAddress) throws JsonProcessingException {
-    validatePayload(() -> this.studentAddressPayloadValidator.validatePayload(studentAddress));
     RequestUtil.setAuditColumnsForUpdate(studentAddress);
     var response = studentAddressService.updateStudentAddress(studentAddress, studentID, studentAddressID);
     publisher.dispatchChoreographyEvent(response.getRight());

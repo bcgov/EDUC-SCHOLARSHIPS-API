@@ -9,7 +9,6 @@ import ca.bc.gov.educ.scholarships.api.struct.v1.Event;
 import ca.bc.gov.educ.scholarships.api.struct.v1.StudentAddress;
 import ca.bc.gov.educ.scholarships.api.util.JsonUtil;
 import ca.bc.gov.educ.scholarships.api.util.RequestUtil;
-import ca.bc.gov.educ.scholarships.api.validator.StudentAddressPayloadValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -32,7 +31,6 @@ import static ca.bc.gov.educ.scholarships.api.constants.v1.EventType.UPDATE_STUD
 @SuppressWarnings("java:S3864")
 public class EventHandlerService {
 
-  private final StudentAddressPayloadValidator studentAddressPayloadValidator;
   private final StudentAddressService studentAddressService;
   private final ScholarshipsEventRepository scholarshipsEventRepository;
   public static final String PAYLOAD_LOG = "payload is :: {}";
@@ -40,8 +38,7 @@ public class EventHandlerService {
   public static final String EVENT_PAYLOAD = "event is :: {}";
   
   @Autowired
-  public EventHandlerService(StudentAddressPayloadValidator studentAddressPayloadValidator, StudentAddressService studentAddressService, ScholarshipsEventRepository scholarshipsEventRepository){
-      this.studentAddressPayloadValidator = studentAddressPayloadValidator;
+  public EventHandlerService(StudentAddressService studentAddressService, ScholarshipsEventRepository scholarshipsEventRepository){
       this.studentAddressService = studentAddressService;
       this.scholarshipsEventRepository = scholarshipsEventRepository;
   }
@@ -51,21 +48,13 @@ public class EventHandlerService {
     log.trace(EVENT_PAYLOAD, event);
     StudentAddress studentAddress = JsonUtil.getJsonObjectFromString(StudentAddress.class, event.getEventPayload());
 
-    val validationErrors = studentAddressPayloadValidator.validatePayload(studentAddress);
-    if (!validationErrors.isEmpty()) {
-      log.debug("Validation errors found for school update: {}", validationErrors);
-      event.setEventOutcome(EventOutcome.STUDENT_ADDRESS_VALIDATION_ERRORS);
-      event.setEventPayload(JsonUtil.getJsonStringFromObject(validationErrors));
-      return Pair.of(createResponseEvent(event), null);
-    }else {
-      RequestUtil.setAuditColumnsForCreate(studentAddress);
-      var studentAddressUpdated = studentAddressService.createOrUpdateStudentAddress(studentAddress, UUID.fromString(studentAddress.getStudentID()), UUID.fromString(studentAddress.getStudentAddressId()));
-      event.setEventOutcome(EventOutcome.STUDENT_ADDRESS_UPDATED);
-      event.setEventPayload(JsonUtil.getJsonStringFromObject(studentAddressMapper.toStructure(studentAddressUpdated)));
-      final ScholarshipsEvent scholarshipsEvent = studentAddressService.createStudentAddressEvent(studentAddressUpdated.getCreateUser(), studentAddressUpdated.getUpdateUser(), JsonUtil.getJsonStringFromObject(StudentAddressMapper.mapper.toStructure(studentAddressUpdated)), UPDATE_STUDENT_ADDRESS, STUDENT_ADDRESS_UPDATED, event.getSagaId());
-      scholarshipsEventRepository.save(scholarshipsEvent);
-      return Pair.of(createResponseEvent(event), scholarshipsEvent);
-    }
+    RequestUtil.setAuditColumnsForCreate(studentAddress);
+    var studentAddressUpdated = studentAddressService.createOrUpdateStudentAddress(studentAddress, UUID.fromString(studentAddress.getStudentID()), UUID.fromString(studentAddress.getStudentAddressId()));
+    event.setEventOutcome(EventOutcome.STUDENT_ADDRESS_UPDATED);
+    event.setEventPayload(JsonUtil.getJsonStringFromObject(studentAddressMapper.toStructure(studentAddressUpdated)));
+    final ScholarshipsEvent scholarshipsEvent = studentAddressService.createStudentAddressEvent(studentAddressUpdated.getCreateUser(), studentAddressUpdated.getUpdateUser(), JsonUtil.getJsonStringFromObject(StudentAddressMapper.mapper.toStructure(studentAddressUpdated)), UPDATE_STUDENT_ADDRESS, STUDENT_ADDRESS_UPDATED, event.getSagaId());
+    scholarshipsEventRepository.save(scholarshipsEvent);
+    return Pair.of(createResponseEvent(event), scholarshipsEvent);
   }
 
   private byte[] createResponseEvent(Event event) throws JsonProcessingException {

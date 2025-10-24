@@ -77,7 +77,6 @@ public class StudentAddressService {
     }
     BeanUtils.copyProperties(studentAddressEntity, existingStudentAddress, CREATE_DATE, CREATE_USER); // update current student entity with incoming payload ignoring the fields.
     TransformUtil.uppercaseFields(existingStudentAddress); // convert the input to upper case.
-    updateAddressFieldsIfNeeded(existingStudentAddress);
     var savedStudent = studentAddressRepository.save(existingStudentAddress);
     final ScholarshipsEvent scholarshipsEvent = createStudentAddressEvent(savedStudent.getCreateUser(), savedStudent.getUpdateUser(), JsonUtil.getJsonStringFromObject(StudentAddressMapper.mapper.toStructure(savedStudent)), UPDATE_STUDENT_ADDRESS, STUDENT_ADDRESS_UPDATED, null);
     scholarshipsEventRepository.save(scholarshipsEvent);
@@ -93,20 +92,11 @@ public class StudentAddressService {
       var currentAddress = existingStudentAddress.get();
       BeanUtils.copyProperties(studentAddressEntity, currentAddress, CREATE_DATE, CREATE_USER); // update current student entity with incoming payload ignoring the fields.
       TransformUtil.uppercaseFields(currentAddress); // convert the input to upper case.
-      updateAddressFieldsIfNeeded(currentAddress);
       return studentAddressRepository.save(currentAddress);
     }else{
       studentAddressEntity.setStudentAddressId(null);
       TransformUtil.uppercaseFields(studentAddressEntity); // convert the input to upper case.
-      updateAddressFieldsIfNeeded(studentAddressEntity);
       return studentAddressRepository.save(studentAddressEntity); 
-    }
-  }
-  
-  private void updateAddressFieldsIfNeeded(StudentAddressEntity studentAddressEntity) {
-    if(StringUtils.isBlank(studentAddressEntity.getAddressLine1()) &&  StringUtils.isNotBlank(studentAddressEntity.getAddressLine2())) {
-      studentAddressEntity.setAddressLine1(studentAddressEntity.getAddressLine2());
-      studentAddressEntity.setAddressLine2(null);
     }
   }
 

@@ -71,21 +71,6 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
   }
 
   @Test
-  void testHandleEvent_givenEventTypeUPDATE_STUDENT_SCHOLARSHIPS_ADDRESS__whenNoStudentExist_shouldHaveEventOutcome_STUDENT_ADDRESS_VALIDATION_ERRORS() throws IOException {
-    final var studentAddress = this.createStudentAddressData();
-    var savedAddress = this.studentAddressRepository.save(studentAddress);
-    savedAddress.setAddressLine1("ABCD");
-
-    var sagaId = UUID.randomUUID();
-    final Event event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(JsonUtil.getJsonStringFromObject(savedAddress)).build();
-    var response = eventHandlerServiceUnderTest.handleUpdateStudentAddressEvent(event);
-    assertThat(response).isNotNull();
-    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response.getLeft());
-    assertThat(responseEvent).isNotNull();
-    assertThat(responseEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_ADDRESS_VALIDATION_ERRORS);
-  }
-
-  @Test
   void testHandleEvent_givenEventTypeUPDATE_STUDENT_SCHOLARSHIPS_ADDRESS__whenNoStudentExist_shouldHaveEventOutcome_STUDENT_ADDRESS_UPDATED() throws IOException {
     final var studentAddress = this.createStudentAddressData();
     var savedAddress = this.studentAddressRepository.save(studentAddress);
