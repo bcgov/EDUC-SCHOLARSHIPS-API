@@ -26,6 +26,9 @@ public class CountryCodeEntity {
   @Column(name = "description")
   private String description;
   @Basic
+  @Column(name = "alternative_code")
+  private String alternativeCode;
+  @Basic
   @Column(name = "display_order")
   private Integer displayOrder;
   @Basic
