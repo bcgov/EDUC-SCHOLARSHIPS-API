@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.scholarships.api.constants.v1.EventOutcome.STUDENT_ADDRESS_UPDATED;
@@ -102,6 +103,10 @@ public class StudentAddressService {
 
   public StudentAddressEntity readStudentAddress(UUID studentID) {
     return studentAddressRepository.findByStudentID(studentID).orElseThrow(() -> new EntityNotFoundException(StudentAddressEntity.class, "studentID", studentID.toString()));
+  }
+
+  public Optional<StudentAddressEntity> getStudentAddress(UUID studentID) {
+    return studentAddressRepository.findByStudentID(studentID);
   }
 
   public ScholarshipsEvent createStudentAddressEvent(String createUser, String updateUser, String jsonString, EventType eventType, EventOutcome eventOutcome, UUID sagaID) {

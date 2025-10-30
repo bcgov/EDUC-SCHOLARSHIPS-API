@@ -27,8 +27,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.scholarships.api.constants.v1.EventOutcome.STUDENT_ADDRESS_UPDATED;
+import static ca.bc.gov.educ.scholarships.api.constants.v1.EventOutcome.*;
 import static ca.bc.gov.educ.scholarships.api.constants.v1.EventStatus.DB_COMMITTED;
+import static ca.bc.gov.educ.scholarships.api.constants.v1.EventType.GET_STUDENT_SCHOLARSHIP_ADDRESS;
 import static ca.bc.gov.educ.scholarships.api.constants.v1.EventType.UPDATE_STUDENT_ADDRESS;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -91,5 +92,41 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
     Assertions.assertThat(studentEventUpdated).isPresent();
     Assertions.assertThat(studentEventUpdated.get().getEventStatus()).isEqualTo(DB_COMMITTED.toString());
     Assertions.assertThat(studentEventUpdated.get().getEventOutcome()).isEqualTo(STUDENT_ADDRESS_UPDATED.toString());
+  }
+
+  @Test
+  void testHandleEvent_givenEventTypeGET_STUDENT_SCHOLARSHIPS_ADDRESS__whenNoStudentExist_shouldHaveEventOutcome_STUDENT_ADDRESS_FOUND() throws IOException {
+    final var studentAddress = this.createStudentAddressData();
+    var savedAddress = this.studentAddressRepository.save(studentAddress);
+    savedAddress.setAddressLine1("ABCD");
+
+    provinceCodeRepository.save(createProvinceCodeData());
+    countryCodeRepository.save(createCountryCodeData());
+
+    var sagaId = UUID.randomUUID();
+    final Event event = Event.builder().eventType(GET_STUDENT_SCHOLARSHIP_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(savedAddress.getStudentID().toString()).build();
+    var response = eventHandlerServiceUnderTest.handleGetStudentAddressEvent(event, false);
+    assertThat(response).isNotNull();
+    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response);
+    assertThat(responseEvent).isNotNull();
+    assertThat(responseEvent.getEventOutcome()).isEqualTo(STUDENT_SCHOLARSHIP_ADDRESS_FOUND);
+  }
+
+  @Test
+  void testHandleEvent_givenEventTypeGET_STUDENT_SCHOLARSHIPS_ADDRESS__whenNoStudentExist_shouldHaveEventOutcome_STUDENT_ADDRESS__NOT_FOUND() throws IOException {
+    final var studentAddress = this.createStudentAddressData();
+    var savedAddress = this.studentAddressRepository.save(studentAddress);
+    savedAddress.setAddressLine1("ABCD");
+
+    provinceCodeRepository.save(createProvinceCodeData());
+    countryCodeRepository.save(createCountryCodeData());
+
+    var sagaId = UUID.randomUUID();
+    final Event event = Event.builder().eventType(GET_STUDENT_SCHOLARSHIP_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(UUID.randomUUID().toString()).build();
+    var response = eventHandlerServiceUnderTest.handleGetStudentAddressEvent(event, false);
+    assertThat(response).isNotNull();
+    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response);
+    assertThat(responseEvent).isNotNull();
+    assertThat(responseEvent.getEventOutcome()).isEqualTo(STUDENT_SCHOLARSHIP_ADDRESS_NOT_FOUND);
   }
 }

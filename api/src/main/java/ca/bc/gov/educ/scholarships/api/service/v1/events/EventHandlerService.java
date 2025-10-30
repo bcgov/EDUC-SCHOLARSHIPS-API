@@ -57,6 +57,31 @@ public class EventHandlerService {
     return Pair.of(createResponseEvent(event), scholarshipsEvent);
   }
 
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public byte[] handleGetStudentAddressEvent(Event event, boolean isSynchronous) throws JsonProcessingException {
+    var studentID = UUID.fromString(event.getEventPayload());
+    if (isSynchronous) {
+      val optionalStudentEntity = studentAddressService.getStudentAddress(studentID);
+      if (optionalStudentEntity.isPresent()) {
+        return JsonUtil.getJsonBytesFromObject(studentAddressMapper.toStructure(optionalStudentEntity.get()));
+      } else {
+        return new byte[0];
+      }
+    }
+
+    log.trace(EVENT_PAYLOAD, event);
+    val optionalStudentEntity = studentAddressService.getStudentAddress(studentID);
+    if (optionalStudentEntity.isPresent()) {
+      var studentAddress = studentAddressMapper.toStructure(optionalStudentEntity.get()); // need to convert to structure MANDATORY otherwise jackson will break.
+      event.setEventPayload(JsonUtil.getJsonStringFromObject(studentAddress));
+      event.setEventOutcome(EventOutcome.STUDENT_SCHOLARSHIP_ADDRESS_FOUND);
+    } else {
+      event.setEventOutcome(EventOutcome.STUDENT_SCHOLARSHIP_ADDRESS_NOT_FOUND);
+    }
+    return createResponseEvent(event);
+  }
+
   private byte[] createResponseEvent(Event event) throws JsonProcessingException {
     val responseEvent = Event.builder()
             .sagaId(event.getSagaId())
