@@ -61,6 +61,13 @@ public class EventHandlerDelegatorService {
             publishToJetStream(pair.getRight());  
           }
           break;
+        case GET_STUDENT_SCHOLARSHIP_ADDRESS:
+          log.info("Received GET_STUDENT_SCHOLARSHIP_ADDRESS event :: {}", event);
+          log.trace(PAYLOAD_LOG, event.getEventPayload());
+          var response = eventHandlerService.handleGetStudentAddressEvent(event, isSynchronous);
+          log.info(RESPONDING_BACK_TO_NATS_ON_CHANNEL, message.getReplyTo() != null ? message.getReplyTo() : event.getReplyTo());
+          publishToNATS(event, message, isSynchronous, response);
+          break;
         default:
           log.info("silently ignoring other events :: {}", event);
           break;
