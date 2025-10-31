@@ -91,7 +91,7 @@ public class StudentAddressService {
 
     if(existingStudentAddress.isPresent()) {
       var currentAddress = existingStudentAddress.get();
-      BeanUtils.copyProperties(studentAddressEntity, currentAddress, CREATE_DATE, CREATE_USER); // update current student entity with incoming payload ignoring the fields.
+      BeanUtils.copyProperties(studentAddressEntity, currentAddress, CREATE_DATE, CREATE_USER, "studentAddressId"); // update current student entity with incoming payload ignoring the fields.
       TransformUtil.uppercaseFields(currentAddress); // convert the input to upper case.
       return studentAddressRepository.save(currentAddress);
     }else{
