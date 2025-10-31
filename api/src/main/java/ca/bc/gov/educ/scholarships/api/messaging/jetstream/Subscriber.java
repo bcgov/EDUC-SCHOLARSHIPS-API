@@ -13,6 +13,7 @@ import io.nats.client.Message;
 import io.nats.client.PushSubscribeOptions;
 import io.nats.client.api.ConsumerConfiguration;
 import io.nats.client.api.DeliverPolicy;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class Subscriber {
         this.jetStreamEventHandlerService = jetStreamEventHandlerService;
     }
 
+    @PostConstruct
     public void subscribe() throws IOException, JetStreamApiException {
         val qName = "SCHOLARSHIPS-EVENTS-TOPIC-API";
         val autoAck = false;
