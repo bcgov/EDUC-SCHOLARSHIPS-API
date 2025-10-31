@@ -49,7 +49,7 @@ public class EventHandlerService {
     StudentAddress studentAddress = JsonUtil.getJsonObjectFromString(StudentAddress.class, event.getEventPayload());
 
     RequestUtil.setAuditColumnsForCreate(studentAddress);
-    var studentAddressUpdated = studentAddressService.createOrUpdateStudentAddress(studentAddress, UUID.fromString(studentAddress.getStudentID()), UUID.fromString(studentAddress.getStudentAddressId()));
+    var studentAddressUpdated = studentAddressService.createOrUpdateStudentAddress(studentAddress, UUID.fromString(studentAddress.getStudentID()));
     event.setEventOutcome(EventOutcome.STUDENT_ADDRESS_UPDATED);
     event.setEventPayload(JsonUtil.getJsonStringFromObject(studentAddressMapper.toStructure(studentAddressUpdated)));
     final ScholarshipsEvent scholarshipsEvent = studentAddressService.createStudentAddressEvent(studentAddressUpdated.getCreateUser(), studentAddressUpdated.getUpdateUser(), JsonUtil.getJsonStringFromObject(StudentAddressMapper.mapper.toStructure(studentAddressUpdated)), UPDATE_STUDENT_ADDRESS, STUDENT_ADDRESS_UPDATED, event.getSagaId());

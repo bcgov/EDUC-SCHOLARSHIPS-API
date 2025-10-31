@@ -85,7 +85,7 @@ public class StudentAddressService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public StudentAddressEntity createOrUpdateStudentAddress(StudentAddress studentAddress, UUID studentID, UUID studentAddressID) {
+  public StudentAddressEntity createOrUpdateStudentAddress(StudentAddress studentAddress, UUID studentID) {
     var studentAddressEntity = studentAddressMapper.toEntity(studentAddress);
     var existingStudentAddress = studentAddressRepository.findByStudentID(studentID);
 
