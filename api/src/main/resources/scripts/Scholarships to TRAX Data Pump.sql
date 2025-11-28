@@ -159,3 +159,14 @@ SELECT
 FROM SCHOOL_FUNDING_MASTER_PUMP sfm;
 
 --Take update statements and run them
+
+SELECT
+    'INSERT INTO SCHOOL_FUNDING_MASTER@spmlink.world (DISTNO, SCHLNO, FUNDING_GROUP_CODE, FUNDING_GROUP_SUBCODE) VALUES (
+    ' || sssp.DISTNO || ', 
+    ' || sssp.SCHLNO || ',
+	' || sssp.FUNDING_GROUP_CODE || ',
+	' || sssp.FUNDING_GROUP_SUBCODE || ');'
+FROM SCHOOL_FUNDING_MASTER_PUMP sssp WHERE sssp.DISTNO || sssp.SCHLNO
+                                               NOT IN (SELECT fm.DISTNO || fm.SCHLNO FROM SCHOOL_FUNDING_MASTER@spmlink.world fm WHERE fm.FUNDING_GROUP_SUBCODE = '11');
+
+--Take insert statements, remove the double quotes and run them
