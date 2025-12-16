@@ -89,17 +89,19 @@ CREATE TABLE SCHOOL_FUNDING_MASTER_PUMP
 AS
 WITH funding_counts AS (
     SELECT
-        SCHOOL_ID,
-        SCHOOL_FUNDING_GROUP_CODE,
+        fund.SCHOOL_ID,
+        fund.SCHOOL_FUNDING_GROUP_CODE,
         COUNT(*) AS code_count,
         ROW_NUMBER() OVER (
-            PARTITION BY SCHOOL_ID 
-            ORDER BY COUNT(*) DESC, SCHOOL_FUNDING_GROUP_CODE
+            PARTITION BY fund.SCHOOL_ID 
+            ORDER BY COUNT(*) DESC, fund.SCHOOL_FUNDING_GROUP_CODE
         ) AS rn
-    FROM INDEPENDENT_SCHOOL_FUNDING_GROUP_SNAPSHOT
-    WHERE collection_id = :collectionID
-      AND school_grade_code in ('GRADE11','GRADE12')
-    GROUP BY SCHOOL_ID, SCHOOL_FUNDING_GROUP_CODE
+    FROM INDEPENDENT_SCHOOL_FUNDING_GROUP_SNAPSHOT fund, school schl
+    WHERE fund.collection_id = :collection_id
+      AND fund.school_grade_code in ('GRADE11','GRADE12')
+      AND schl.FACILITY_TYPE_CODE NOT IN ('DIST_LEARN')
+      AND schl.school_id = fund.school_id
+    GROUP BY fund.SCHOOL_ID, fund.SCHOOL_FUNDING_GROUP_CODE
 )
 SELECT
     (SELECT dist.DISTRICT_NUMBER from DISTRICT dist, SCHOOL school WHERE school.SCHOOL_ID = fund_counts.school_id AND dist.DISTRICT_ID = school.DISTRICT_ID) as DISTNO,
@@ -115,6 +117,7 @@ SELECT
 FROM FUNDING_COUNTS fund_counts
 WHERE rn = 1
 ORDER BY school_id;
+
 
 ----------------------------------------
 
