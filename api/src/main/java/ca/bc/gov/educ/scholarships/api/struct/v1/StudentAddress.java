@@ -31,15 +31,12 @@ public class StudentAddress extends BaseRequest implements Serializable {
   private String addressLine2;
 
   @Size(max = 255)
-  @NotNull(message = "city cannot be null")
   private String city;
 
   @Size(max = 10)
-  @NotNull(message = "postalZip cannot be null")
   private String postalZip;
 
   @Size(max = 2)
-  @NotNull(message = "provinceStateCode cannot be null")
   private String provinceStateCode;
 
   @Size(max = 2)
