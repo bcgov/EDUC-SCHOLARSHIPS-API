@@ -6,8 +6,9 @@ COPY api/src src
 RUN mvn package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM artifacts.developer.gov.bc.ca/docker-remote/openjdk:21-jdk-oracle
-RUN useradd -ms /bin/bash spring
+FROM artifacts.developer.gov.bc.ca/docker-remote/eclipse-temurin:21.0.9_10-jdk-alpine-3.23
+
+RUN adduser -D -s /bin/sh spring
 RUN mkdir -p /logs
 RUN chown -R spring:spring /logs
 RUN chmod 755 /logs
