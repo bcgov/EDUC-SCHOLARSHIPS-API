@@ -44,7 +44,7 @@ jobs:
   openshift-ci-cd:
     name: Deploy to OpenShift PROD
     runs-on: ubuntu-22.04
-    environment: production
+    environment: prod
 
     outputs:
       ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
