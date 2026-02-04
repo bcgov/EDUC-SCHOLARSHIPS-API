@@ -25,7 +25,7 @@ env:
   CHES_TOKEN_URL: ${{ secrets.CHES_TOKEN_URL }}
   CHES_ENDPOINT_URL: ${{ secrets.CHES_ENDPOINT_URL }}
 
-  SPRING_BOOT_IMAGE_NAME: student-data-collection-api-master
+  SPRING_BOOT_IMAGE_NAME: scholarships-api-master
 
   APP_NAME: 'scholarships-api'
   REPO_NAME: "educ-scholarships-api"
