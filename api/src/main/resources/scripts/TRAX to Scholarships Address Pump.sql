@@ -1,4 +1,17 @@
---Create the structure named TRAX_STUDENT_ADDRESS large enough in column size in the EDX migration schema, and then copy in the following:
+--Create the structure named TRAX_STUDENT_ADDRESS large enough in column size in the EDX migration schema:
+CREATE TABLE TRAX_STUDENT_ADDRESS
+(
+    STUD_NO           VARCHAR2(10),                            
+    ADDRESS1      VARCHAR2(255),                    
+    ADDRESS2      VARCHAR2(255),
+    CITY                VARCHAR2(255),                     
+    POSTAL         VARCHAR2(10),                   
+    PROV_CODE VARCHAR2(10),                        
+    CNTRY_CODE        VARCHAR2(10)
+);
+
+
+--Copy in the following
 SELECT
     STUD_NO,
     ADDRESS1,
@@ -12,6 +25,8 @@ FROM
 
 --Create STUDENT_LINK table from required environment (Student API)
 --SELECT STUDENT_ID,PEN FROM STUDENT;
+    
+--Create an index on PEN
 
 --Run the following in the migration schema
 CREATE TABLE STUDENT_ADDRESS
