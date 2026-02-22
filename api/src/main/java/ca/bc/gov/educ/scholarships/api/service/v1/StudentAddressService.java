@@ -15,8 +15,8 @@ import ca.bc.gov.educ.scholarships.api.struct.v1.StudentAddress;
 import ca.bc.gov.educ.scholarships.api.util.JsonUtil;
 import ca.bc.gov.educ.scholarships.api.util.TransformUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,13 +93,21 @@ public class StudentAddressService {
       var currentAddress = existingStudentAddress.get();
       BeanUtils.copyProperties(studentAddressEntity, currentAddress, CREATE_DATE, CREATE_USER, "studentAddressId"); // update current student entity with incoming payload ignoring the fields.
       TransformUtil.uppercaseFields(currentAddress); // convert the input to upper case.
+      setCountryCodeIfNeeded(currentAddress);
       currentAddress.setUpdateDate(LocalDateTime.now());
       currentAddress.setUpdateUser(studentAddress.getUpdateUser());
       return studentAddressRepository.save(currentAddress);
     }else{
       studentAddressEntity.setStudentAddressId(null);
       TransformUtil.uppercaseFields(studentAddressEntity); // convert the input to upper case.
+      setCountryCodeIfNeeded(studentAddressEntity);
       return studentAddressRepository.save(studentAddressEntity); 
+    }
+  }
+  
+  private void setCountryCodeIfNeeded(StudentAddressEntity studentAddressEntity) {
+    if(StringUtils.isNotBlank(studentAddressEntity.getCountryCode()) && studentAddressEntity.getCountryCode().length() == 3 && studentAddressEntity.getCountryCode().equalsIgnoreCase("CAN")){
+      studentAddressEntity.setCountryCode("CA");
     }
   }
 
