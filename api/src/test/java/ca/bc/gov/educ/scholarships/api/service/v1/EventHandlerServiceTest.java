@@ -95,6 +95,34 @@ class EventHandlerServiceTest extends BaseScholarshipsAPITest {
   }
 
   @Test
+  void testHandleEvent_givenEventTypeUPDATE_STUDENT_SCHOLARSHIPS_ADDRESS_WITH_CAN__whenNoStudentExist_shouldHaveEventOutcome_STUDENT_ADDRESS_UPDATED() throws IOException {
+    final var studentAddress = this.createStudentAddressData();
+    var savedAddress = this.studentAddressRepository.save(studentAddress);
+    savedAddress.setAddressLine1("ABCD");
+    savedAddress.setCountryCode("CAN");
+
+    provinceCodeRepository.save(createProvinceCodeData());
+    countryCodeRepository.save(createCountryCodeData());
+
+    var sagaId = UUID.randomUUID();
+    final Event event = Event.builder().eventType(EventType.UPDATE_STUDENT_SCHOLARSHIPS_ADDRESS).sagaId(sagaId).replyTo(SCHOLARSHIPS_API_TOPIC).eventPayload(JsonUtil.getJsonStringFromObject(savedAddress)).build();
+    var response = eventHandlerServiceUnderTest.handleUpdateStudentAddressEvent(event);
+    assertThat(response).isNotNull();
+    Event responseEvent = JsonUtil.getJsonObjectFromByteArray(Event.class, response.getLeft());
+    assertThat(responseEvent).isNotNull();
+    assertThat(responseEvent.getEventOutcome()).isEqualTo(STUDENT_ADDRESS_UPDATED);
+
+    var studentEventUpdated = scholarshipsEventRepository.findBySagaIdAndEventType(sagaId, UPDATE_STUDENT_ADDRESS.toString());
+    Assertions.assertThat(studentEventUpdated).isPresent();
+    Assertions.assertThat(studentEventUpdated.get().getEventStatus()).isEqualTo(DB_COMMITTED.toString());
+    Assertions.assertThat(studentEventUpdated.get().getEventOutcome()).isEqualTo(STUDENT_ADDRESS_UPDATED.toString());
+    
+    var retrievedAddress = studentAddressRepository.findAll();
+    Assertions.assertThat(retrievedAddress.size()).isEqualTo(1);
+    Assertions.assertThat(retrievedAddress.getFirst().getCountryCode()).isEqualTo("CA");
+  }
+
+  @Test
   void testHandleEvent_givenEventTypeGET_STUDENT_SCHOLARSHIPS_ADDRESS__whenNoStudentExist_shouldHaveEventOutcome_STUDENT_ADDRESS_FOUND() throws IOException {
     final var studentAddress = this.createStudentAddressData();
     var savedAddress = this.studentAddressRepository.save(studentAddress);
